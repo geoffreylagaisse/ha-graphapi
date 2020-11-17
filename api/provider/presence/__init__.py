@@ -1,6 +1,6 @@
 """
 Presence
-Get Userpresences by XUID or Gamertag
+Get user presence for authenticated user or a specified user by ID
 """
 from typing import List
 
