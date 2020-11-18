@@ -75,6 +75,7 @@ class AuthManager(AbstractAuth):
     def __init__(
         self,
         client_session: ClientSession,
+
         client_id: str,
         client_secret: str,
         redirect_uri: str,
@@ -88,6 +89,7 @@ class AuthManager(AbstractAuth):
 
         self.oauth: OAuth2TokenResponse = None
 
+
     async def async_get_access_token(self) -> str:
         """Return a valid access token."""
         if not self.oauth:
@@ -97,6 +99,7 @@ class AuthManager(AbstractAuth):
             await self.refresh_token()
 
         return self.oauth.access_token
+
 
     def generate_authorization_url(self, state: Optional[str] = None) -> str:
         """Generate Microsoft Authorization URL."""
@@ -115,6 +118,7 @@ class AuthManager(AbstractAuth):
         return str(
             URL(AUTHORITY + "/oauth2/v2.0/authorize").with_query(query_string)
         )
+
 
     async def request_token(self, authorization_code: str) -> None:
         """Request OAuth2 token."""

@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 def utc_now():
     return datetime.now(timezone.utc)
 
+
 class OAuth2TokenResponse(BaseModel):
     token_type: str
     expires_in: int

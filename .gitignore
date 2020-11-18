@@ -1,5 +1,6 @@
 *.egg-info
 dist/
 venv/
+presence/
 .vscode/
 __pycache__
