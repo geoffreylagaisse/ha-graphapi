@@ -14,7 +14,7 @@ from hagraphapi.client import GraphApiClient
 
 CLIENT_ID = ""
 CLIENT_SECRET = ""
-REDIRECT_URI = "http://localhost:8080/auth/callback"
+REDIRECT_URI = "http://localhost:8080/auth/external/callback"
 
 queue = asyncio.Queue(1)
 
@@ -81,7 +81,7 @@ def main():
     args = parser.parse_args()
 
     app = web.Application()
-    app.add_routes([web.get("/auth/callback", auth_callback)])
+    app.add_routes([web.get("/auth/external/callback", auth_callback)])
     runner = web.AppRunner(app)
 
     loop = asyncio.get_event_loop()
