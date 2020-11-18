@@ -1,13 +1,14 @@
 import pathlib
-from setuptools import setup
+from setuptools import find_packages, setup
 
 # The directory containing this file
 HERE = pathlib.Path(__file__).parent
+PACKAGES = [f"hagraph.{p}" for p in find_packages(where="hagraph")]
 
 # This call to setup() does all the work
 setup(
     name="ha-graphapi",
-    version="0.0.2",
+    version="0.0.14",
     description="For use with Home Assistant to query Microsoft's Graph API",
     author="Jamie Weston",
     license="MIT",
@@ -20,7 +21,7 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
     ],
-    packages=["hagraphapi"],
+    packages=PACKAGES,
     install_requires=[
         "aiohttp",
         "appdirs",
