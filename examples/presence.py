@@ -38,7 +38,7 @@ async def async_main(
 ):
 
     async with ClientSession() as session:
-        auth_mgr = AuthenticationManager(
+        auth_mgr = AuthManager(
             session, client_id, client_secret, redirect_uri
         )
 
