@@ -15,7 +15,7 @@ from .models import OAuth2TokenResponse
 
 log = logging.getLogger("authentication")
 
-DEFAULT_SCOPES = ["https://graph.microsoft.com/.default"]
+DEFAULT_SCOPES = ["https://graph.microsoft.com/.default", "offline_access"]
 AUTHORITY = "https://login.microsoftonline.com/common"
 
 class AbstractAuth(ABC):
