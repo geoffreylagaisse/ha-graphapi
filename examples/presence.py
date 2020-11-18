@@ -8,13 +8,13 @@ import webbrowser
 
 from aiohttp import ClientSession, web
 
-from hagraphapi.auth.manager import AuthManager
-from hagraphapi.client import GraphApiClient
+from hagraph.api.auth.manager import AuthenticationManager
+from hagraph.api.client import GraphApiClient
 
 
 CLIENT_ID = ""
 CLIENT_SECRET = ""
-REDIRECT_URI = "http://localhost:8080/auth/callback"
+REDIRECT_URI = "http://localhost:8080/auth/external/callback"
 
 queue = asyncio.Queue(1)
 
@@ -38,7 +38,7 @@ async def async_main(
 ):
 
     async with ClientSession() as session:
-        auth_mgr = AuthManager(
+        auth_mgr = AuthenticationManager(
             session, client_id, client_secret, redirect_uri
         )
 
@@ -81,7 +81,7 @@ def main():
     args = parser.parse_args()
 
     app = web.Application()
-    app.add_routes([web.get("/auth/callback", auth_callback)])
+    app.add_routes([web.get("/auth/external/callback", auth_callback)])
     runner = web.AppRunner(app)
 
     loop = asyncio.get_event_loop()

@@ -6,7 +6,6 @@ from typing import Any
 
 from aiohttp import hdrs
 from aiohttp.client import ClientResponse
-from ms_cv import CorrelationVector
 
 from .provider.presence import PresenceProvider
 from .auth.manager import AuthenticationManager
@@ -17,14 +16,12 @@ log = logging.getLogger("microsoft.graph.api")
 class Session:
     def __init__(self, auth_mgr: AuthenticationManager):
         self._auth_mgr = auth_mgr
-        self._cv = CorrelationVector()
 
     async def request(
         self,
         method: str,
         url: str,
-        include_auth: bool = True,
-        include_cv: bool = True,
+        include_auth: bool = False,
         **kwargs: Any,
     ) -> ClientResponse:
         """Proxy Request and add Auth/CV headers."""
@@ -37,16 +34,18 @@ class Session:
         extra_params = kwargs.pop("extra_params", None)
         extra_data = kwargs.pop("extra_data", None)
 
+        log.critical(">>>> Bearer %s", self._auth_mgr.oauth.access_token)
+
         if include_auth:
             # Ensure tokens valid
-            await self._auth_mgr.refresh_tokens()
+            await self._auth_mgr.request_tokens()
             # Set auth header
             headers[
                 hdrs.AUTHORIZATION
-            ] = self._auth_mgr.xsts_token.authorization_header_value
+            ] = self._auth_mgr.oauth.access_token
 
-        if include_cv:
-            headers["MS-CV"] = self._cv.increment()
+        # if include_cv:
+        #     headers["MS-CV"] = self._cv.increment()
 
         # Extend with optionally supplied values
         if extra_headers:

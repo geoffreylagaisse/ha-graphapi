@@ -3,16 +3,18 @@ Authentication Manager
 Authenticate with Microsoft Online.
 """
 import logging
+import json
 from typing import List, Optional
+from urllib.parse import urlencode, quote_plus
+
+from .models import OAuth2TokenResponse
 
 import aiohttp
 from yarl import URL
 
-from hagraph.api.auth.models import OAuth2TokenResponse
-
 log = logging.getLogger("authentication")
 
-DEFAULT_SCOPES = ["https://graph.microsoft.com/.default"]
+DEFAULT_SCOPES = ["https://graph.microsoft.com/Presence.Read", "https://graph.microsoft.com/Presence.Read.All"]
 AUTHORITY = "https://login.microsoftonline.com/common"
 # ENDPOINT = 'https://graph.microsoft.com/v1.0/users'
 
@@ -40,9 +42,13 @@ class AuthenticationManager:
             "response_type": "code",
             "response_mode": "query",
             "approval_prompt": "auto",
+            "code_challenge_method": "plain",
+            "code_challenge": "YTFjNjI1OWYzMzA3MTI4ZDY2Njg5M2RkNmVjNDE5YmEyZGRhOGYyM2IzNjdmZWFhMTQ1ODg3NDcxY2Nl",
             "scope": " ".join(self._scopes),
             "redirect_uri": self._redirect_uri,
         }
+
+        log.critical(">>>> oauth query_string: %s", query_string)
 
         if state:
             query_string["state"] = state
@@ -55,15 +61,16 @@ class AuthenticationManager:
         """Request all tokens."""
         log.critical("auth manager: requesting all tokens")
         self.oauth = await self.request_oauth_token(authorization_code)
+        log.critical("self.oauth %s", self.oauth)
 
     async def refresh_tokens(self) -> None:
         """Refresh all tokens."""
         if not (self.oauth and self.oauth.is_valid()):
             self.oauth = await self.refresh_oauth_token()
 
-    async def request_oauth_token(self, authorization_code: str) -> OAuth2TokenResponse:
+    async def request_token(self, authorization_code: str) -> dict:
         """Request OAuth2 token."""
-        log.critical("auth manager: requesting oauth token (code %s)", authorization_code)
+        log.critical("auth manager: requesting token (code %s)", authorization_code)
         return await self._oauth2_token_request(
             {
                 "client_id": self._client_id,
@@ -71,42 +78,56 @@ class AuthenticationManager:
                 "grant_type": "authorization_code",
                 "code": authorization_code,
                 "scope": " ".join(self._scopes),
+                "code_challenge": "YTFjNjI1OWYzMzA3MTI4ZDY2Njg5M2RkNmVjNDE5YmEyZGRhOGYyM2IzNjdmZWFhMTQ1ODg3NDcxY2Nl",
                 "redirect_uri": self._redirect_uri,
-                "code_verifier": "9ED0A85C593A555C95CFC1CBC40705E1857CEA1C38575F78D0117A09E3B34A86"
+                # "code_verifier": "9ED0A85C593A555C95CFC1CBC40705E1857CEA1C38575F78D0117A09E3B34A86"
             }
         )
 
-    async def refresh_oauth_token(self) -> OAuth2TokenResponse:
+    async def refresh_oauth_token(self) -> dict:
         """Refresh OAuth2 token."""
+        log.critical("self.oauth: %s", self.oauth)
         return await self._oauth2_token_request(
             {
-                "grant_type": "refresh_token",
-                "scope": " ".join(self._scopes),
-                "refresh_token": self.oauth.refresh_token,
                 "client_id": self._client_id,
                 "client_secret": self._client_secret,
+                "grant_type": "authorization_code",
+                "code": authorization_code,
                 "scope": " ".join(self._scopes),
+                "code_challenge": "YTFjNjI1OWYzMzA3MTI4ZDY2Njg5M2RkNmVjNDE5YmEyZGRhOGYyM2IzNjdmZWFhMTQ1ODg3NDcxY2Nl",
                 "redirect_uri": self._redirect_uri,
-                "code_verifier": "9ED0A85C593A555C95CFC1CBC40705E1857CEA1C38575F78D0117A09E3B34A86"
+                # "grant_type": "refresh_token",
+                # "scope": " ".join(self._scopes),
+                # "refresh_token": self.oauth.refresh_token,
+                # "client_id": self._client_id,
+                # "client_secret": self._client_secret,
+                # "redirect_uri": self._redirect_uri,
+                # "code_verifier": "YTFjNjI1OWYzMzA3MTI4ZDY2Njg5M2RkNmVjNDE5YmEyZGRhOGYyM2IzNjdmZWFhMTQ1ODg3NDcxY2Nl"
             }
         )
 
     async def _oauth2_token_request(self, data: dict) -> OAuth2TokenResponse:
         """Execute token requests."""
-        data["client_id"] = self._client_id
-        data["client_secret"] = self._client_secret
-        data["grant_type"] = self._grant_type
-        data["scope"] = self._scope
-        data["code"] = self._code
-        data["redirect_uri"] = self._redirect_uri
-        data["code_verifier"] = "9ED0A85C593A555C95CFC1CBC40705E1857CEA1C38575F78D0117A09E3B34A86"
+        log.critical("_oauth2_token_request raw: %s", data)
 
+        data["code_verifier"] = data["code_challenge"]
+        del data["code_challenge"]
+        # del data["client_secret"]
+        data["redirect_uri"] = self._redirect_uri
+
+        log.critical("_oauth2_token_request updated: %s", data)
         if self._client_secret:
             data["client_secret"] = self._client_secret
             
+        custom_headers = { 
+            "Origin": self._redirect_uri
+        }
+
         resp = await self.session.post(
             AUTHORITY + "/oauth2/v2.0/token", data=data
         )
-        # print(await resp.content.read())
-        resp.raise_for_status()
+
+        json = await resp.json()
+        print("Token response: %s", OAuth2TokenResponse.parse_raw(await resp.text()))
+        # resp.raise_for_status()
         return OAuth2TokenResponse.parse_raw(await resp.text())

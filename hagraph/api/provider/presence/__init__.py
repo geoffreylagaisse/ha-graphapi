@@ -20,7 +20,7 @@ class PresenceProvider(BaseProvider):
         """
         url = self.BASE_URL + "/me/presence"
         resp = await self.client.session.get(
-            url, headers=self.HEADERS_PRESENCE, **kwargs
+            url, **kwargs
         )
         resp.raise_for_status()
         return PresenceResponse.parse_raw(await resp.text())
