@@ -13,7 +13,7 @@ class OAuth2TokenResponse(BaseModel):
     expires_in: int
     scope: str
     access_token: str
-    refresh_token: Optional[str]
+    refresh_token: str
     issued: datetime = Field(default_factory=utc_now)
 
     def is_valid(self) -> bool:
