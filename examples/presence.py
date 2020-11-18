@@ -8,7 +8,7 @@ import webbrowser
 
 from aiohttp import ClientSession, web
 
-from hagraph.api.auth.manager import AuthenticationManager
+from hagraph.api.auth.manager import AuthManager
 from hagraph.api.client import GraphApiClient
 
 
@@ -38,7 +38,7 @@ async def async_main(
 ):
 
     async with ClientSession() as session:
-        auth_mgr = AuthenticationManager(
+        auth_mgr = AuthManager(
             session, client_id, client_secret, redirect_uri
         )
 
