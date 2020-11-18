@@ -8,8 +8,8 @@ import webbrowser
 
 from aiohttp import ClientSession, web
 
-from hagraphapi.auth.manager import AuthManager
-from hagraphapi.client import GraphApiClient
+from hagraph.api.auth.manager import AuthManager
+from hagraph.api.client import GraphApiClient
 
 
 CLIENT_ID = ""
