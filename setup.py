@@ -6,7 +6,7 @@ PACKAGES = [f"hagraph.{p}" for p in find_packages(where="hagraph")]
 # This call to setup() does all the work
 setup(
     name="ha-graphapi",
-    version="0.0.17",
+    version="0.0.18",
     description="For use with Home Assistant to query Microsoft's Graph API",
     author="Jamie Weston",
     license="MIT",
