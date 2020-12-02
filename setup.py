@@ -10,6 +10,7 @@ setup(
     description="For use with Home Assistant to query Microsoft's Graph API",
     author="Jamie Weston",
     license="MIT",
+    url="https://github.com/jlweston/ha-graphapi/",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
