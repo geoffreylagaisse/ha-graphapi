@@ -2,10 +2,11 @@
 BaseProvider
 Subclassed by every *real* provider
 """
+from hagraph.api.client import GraphApiClient
 
 
 class BaseProvider:
-    def __init__(self, client):
+    def __init__(self, client: GraphApiClient):
         """
         Initialize an the BaseProvider
         Args:

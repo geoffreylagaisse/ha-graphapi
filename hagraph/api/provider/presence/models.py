@@ -7,3 +7,8 @@ class PresenceResponse(BaseModel):
     id: str
     availability: str
     activity: str
+
+class PresenceSetRequest(BaseModel):
+    availability: str
+    activity: str
+    expirationDuration: str
